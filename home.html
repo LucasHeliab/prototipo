@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LB IN - Gestão de Pessoas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f0f2f5; }
+    header { background: #333; color: #fff; padding: 10px 20px; display: flex; justify-content: flex-start; align-items: center; }
+    .logo { flex-shrink: 0; }
+    .logo img {  height: 40px;  width: auto;  display: block; border-radius: 10px;
+        border: 2px;
+        padding: 5px;}
+    .search { background: #444; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; }
+    .container { max-width: 1200px; margin: 20px auto; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { margin-top: 0; }
+    .actions { text-align: right; margin-bottom: 20px; }
+    .actions button { background: #f60; color: #fff; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+    .actions button.clear { background: #ccc; color: #333; }
+    .form-grid { display: flex; gap: 20px; }
+    .profile-photo { flex: 0 0 150px; height: 150px; background: #f5f5f5; border: 2px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .profile-photo input { display: none; }
+    .form-group { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .tabs { margin-top: 30px; border-bottom: 1px solid #ccc; display: flex; gap: 20px; }
+    .tabs button { background: none; border: none; padding: 10px 0; cursor: pointer; font-weight: bold; position: relative; }
+    .tabs button.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 3px; background: #f60; }
+    .tab-content { padding: 20px 0; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    .search-container {
+        max-width: 800px;
+        margin: auto;
+        width: 90%;
+    }
+
+    .search-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: white;
+        border: 2px solid #2A3F54;
+        border-radius: 30px;
+        padding: 5px 20px;
+    }
+
+    .search-input {
+        flex: 1;
+        border: none;
+        padding: 15px 10px;
+        font-size: 16px;
+        outline: none;
+    }
+
+    .filter-select {
+        margin: auto;
+        position: relative;
+        min-width: auto;
+    }
+
+    .filter-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 8px 12px;
+        background: #333;
+        border-radius: 20px;
+        transition: all 0.3s;
+    }
+
+    .filter-toggle:hover {
+        background: #333;
+    }
+
+    .filter-options {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: #333;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-top: 5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        min-width: 160px;
+        z-index: 100;
+    }
+
+    .filter-option {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .filter-option:hover {
+        background: #f60;
+    }
+
+    .show-options {
+        display: block;
+    }
+
+    .fa-chevron-down {
+        font-size: 12px;
+        transition: transform 0.3s;
+    }
+
+    .rotate {
+        transform: rotate(180deg);
+    }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #f9f9f9; }
+    textarea { height: 100px; }
+    .form-section {
+        margin: 15px 0;
+    }
+
+    h3 {
+        margin: 0 0 8px 0;
+        font-size: 1em;
+        color: #333;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 25px;
+        align-items: center;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        position: relative;
+        padding-left: 25px;
+    }
+
+    .radio-checkmark {
+        position: absolute;
+        left: 0;
+        height: 18px;
+        width: 18px;
+        border: 2px solid #666;
+        border-radius: 50%;
+    }
+
+    input[type="radio"] {
+        opacity: 0;
+        position: absolute;
+    }
+
+    input[type="radio"]:checked ~ .radio-checkmark {
+        background: #4CAF50;
+        border-color: #4CAF50;
+    }
+
+    input[type="radio"]:checked ~ .radio-checkmark::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="../images/logo.png" alt="LB IN Logo">
+    </div>
+    <div class="search-container">
+        <div class="search-wrapper">
+            <div class="filter-select">
+                <div class="filter-toggle" onclick="toggleOptions()">
+                    <span id="selectedFilter">CPF/CNPJ</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="filter-options" id="filterOptions">
+                    <div class="filter-option" onclick="selectFilter('CPF/CNPJ')">CPF/CNPJ</div>
+                    <div class="filter-option" onclick="selectFilter('Nome')">Nome</div>
+                    <div class="filter-option" onclick="selectFilter('Nome Fantasia')">Nome Fantasia</div>
+                    <div class="filter-option" onclick="selectFilter('ID')">ID</div>
+                </div>
+            </div>
+            <input type="text" 
+                class="search-input" 
+                placeholder="Buscar por CPF/CNPJ" 
+                id="searchInput">
+            <i class="fas fa-search" style="color: #666; font-size: 18px;"></i>
+        </div>
+    </div>
+
+    <script>
+        function toggleOptions() {
+            const options = document.getElementById('filterOptions');
+            const arrow = document.querySelector('.fa-chevron-down');
+            options.classList.toggle('show-options');
+            arrow.classList.toggle('rotate');
+        }
+
+        function selectFilter(filter) {
+            document.getElementById('selectedFilter').textContent = filter;
+            const placeholderMap = {
+                'CPF/CNPJ': 'Buscar por CPF/CNPJ',
+                'Nome': 'Buscar por Nome',
+                'Nome Fantasia': 'Buscar por Nome Fantasia',
+                'ID': 'Buscar por ID'
+            };
+            document.getElementById('searchInput').placeholder = placeholderMap[filter];
+            toggleOptions();
+        }
+    </script>
+</header>
+<main class="container">
+  <h1>Cadastro / Alteração de Pessoas</h1>
+  <div class="actions">
+    <button class="clear">Limpar</button>
+    <button>Salvar</button>
+  </div>
+  <div class="form-grid">
+    <div class="profile-photo" onclick="document.getElementById('photoInput').click();">
+      <span>Upload<br>Foto</span>
+      <input type="file" id="photoInput" accept="image/*">
+    </div>
+    <div class="form-group">
+      <div>
+        <label for="id">ID</label>
+        <input type="text" id="id">
+      </div>
+      <div>
+        <label for="nome">Nome (Razão Social)</label>
+        <input type="text" id="nome">
+      </div>
+      <div>
+        <label for="tipoPessoa">Tipo de Pessoa</label>
+        <select id="tipoPessoa">
+          <option>Física</option>
+          <option>Jurídica</option>
+        </select>
+      </div>
+      <div>
+        <label for="cpfCnpj">CPF/CNPJ</label>
+        <input type="text" id="cpfCnpj">
+      </div>
+      <div>
+        <label for="linkDocs">Link para documentos</label>
+        <input type="url" id="linkDocs">
+      </div>
+      <div>
+        <label for="nomeFantasia">Nome Fantasia</label>
+        <input type="text" id="nomeFantasia">
+      </div>
+      <div>
+        <label for="sexo">Sexo</label>
+        <select id="sexo">
+          <option>Masculino</option>
+          <option>Feminino</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div>
+        <label for="nascimento">Nascimento</label>
+        <input type="date" id="nascimento">
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="active" data-tab="endereco">Endereço</button>
+    <button data-tab="contatos">Contatos</button>
+    <button data-tab="contratacao">Contratação</button>
+    <button data-tab="desligamento">Desligamento</button>
+    <button data-tab="funcionarios">Funcionários da empresa</button>
+    <button data-tab="cargos">Cargos</button>
+    <button data-tab="veiculos">Veículos</button>
+    <button data-tab="observacoes">Observações</button>
+  </div>
+  <div class="tab-content">
+    <section id="endereco" class="tab-section active">
+      <div class="form-group">
+        <div><label for="cep">CEP</label><input type="text" id="cep"></div>
+        <div><label for="logradouro">Logradouro</label><input type="text" id="logradouro"></div>
+        <div><label for="numero">Número</label><input type="text" id="numero"></div>
+        <div><label for="bairro">Bairro</label><input type="text" id="bairro"></div>
+        <div><label for="cidade">Cidade</label><input type="text" id="cidade"></div>
+        <div><label for="estado">Estado</label><input type="text" id="estado"></div>
+        <div><label for="pais">País</label><input type="text" id="pais"></div>
+      </div>
+    </section>
+    <section id="contatos" class="tab-section">
+      <div class="form-group">
+        <div><label for="telefone">Telefone</label><input type="text" id="telefone"></div>
+        <div><label for="emailPessoal">E-mail Pessoal</label><input type="email" id="emailPessoal"></div>
+        <div><label for="emailLBIN">E-mail LB IN</label><input type="email" id="emailLBIN"></div>
+      </div>
+    </section>
+    <section id="contratacao" class="tab-section">
+      <div class="form-group">
+        <div><label for="dataContratacao">Data de Contratação</label><input type="date" id="dataContratacao"></div>
+        <div><label for="tipoContrato">Tipo de Contrato</label><input type="text" id="tipoContrato"></div>
+        <div><label for="numeroContrato">Número do Contrato</label><input type="text" id="numeroContrato"></div>
+        <div><label for="numeroESocial">Número do E‑Social</label><input type="text" id="numeroESocial"></div>
+        <div><label for="jornada">Jornada</label><input type="text" id="jornada"></div>
+      </div>
+    </section>
+    <section id="desligamento" class="tab-section">
+      <div class="form-group">
+        <div><label for="dataDesligamento">Data de Desligamento</label><input type="date" id="dataDesligamento"></div>
+        <div><label for="motivoDesligamento">Motivo do Desligamento</label><input type="text" id="motivoDesligamento"></div>
+        <div class="form-section">
+            <h3>Lista de Restrição?</h3>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="restricao" value="sim">
+                    <span class="radio-checkmark"></span>
+                    Sim
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="restricao" value="nao">
+                    <span class="radio-checkmark"></span>
+                    Não
+                </label>
+            </div>
+        </div>
+      </div>
+    </section>
+    <section id="funcionarios" class="tab-section">
+      <table>
+        <thead>
+          <tr><th>Nome Completo</th><th>Telefone</th><th>Nascimento</th><th>Foto</th><th>Documento</th><th>CPF</th><th>Cargo</th><th>Ativo</th></tr>
+        </thead>
+        <tbody><tr><td colspan="8">Nenhum registro.</td></tr></tbody>
+      </table>
+    </section>
+    <section id="cargos" class="tab-section">
+      <table>
+        <thead>
+          <tr><th>Cargo</th><th>Empreendimento</th><th>Ativo</th></tr>
+        </thead>
+        <tbody><tr><td colspan="3">Nenhum registro.</td></tr></tbody>
+      </table>
+    </section>
+    <section id="veiculos" class="tab-section">
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Placa</th><th>Descrição</th><th>Ativo</th></tr>
+        </thead>
+        <tbody><tr><td colspan="4">Nenhum registro.</td></tr></tbody>
+      </table>
+    </section>
+    <section id="observacoes" class="tab-section">
+      <label for="observacoesTxt">Observações</label>
+      <textarea id="observacoesTxt"></textarea>
+    </section>
+  </div>
+</main>
+<script>
+  // Tab navigation
+  document.querySelectorAll('.tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+  // Clear form
+  document.querySelector('.clear').addEventListener('click', () => {
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      if(el.type==='checkbox') el.checked=false;
+      else el.value='';
+    });
+  });
+</script>
+</body>
+</html>
